@@ -1,26 +1,29 @@
-const { WebClient, RTMClient } = require('@slack/client');
-const { PubSub } = require('apollo-server');
+const { WebClient } = require('@slack/web-api');
+const { SocketModeClient } = require('@slack/socket-mode');
+const { PubSub } = require('graphql-subscriptions');
 
-let webAPI, rtmAPI;
+let webAPI, socketModeClient;
 
 const pubsub = new PubSub();
 
-function connect({ webToken, rtmToken }) { // <-- Destructure new token
-  console.log('webToken', webToken);
-  console.log('rtmToken', rtmToken);
+async function connect ({ appToken, botToken }) { // <-- Destructure new tokens
+  console.log('appToken', appToken);
+  console.log('botToken', botToken);
 
-  webAPI = new WebClient(webToken);
-  rtmAPI = new RTMClient(rtmToken); // <-- Create new RTMClient instance with new token
+  webAPI = new WebClient(botToken);
+  socketModeClient = new SocketModeClient({
+    appToken
+  }); // <-- Create new RTMClient instance with new token
 
-  rtmAPI.start(); // <-- Boot RTMClient
+  await socketModeClient.start(); // <-- Boot SocketModeClient
 }
 
 function getConnection() {
-  if(!webAPI || !rtmAPI) {
+  if(!webAPI || !socketModeClient) {
     throw Error('Slack connections not found');
   }
 
-  return { webAPI, rtmAPI };
+  return { webAPI, socketModeClient };
 }
 
 module.exports = { connect, getConnection, pubsub };

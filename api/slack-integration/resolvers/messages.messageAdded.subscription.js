@@ -1,17 +1,28 @@
 const { pubsub, getConnection } = require('../../../slack/connection');
 const slackMessageMap = require('../data-mappings/message');
 
-const { rtmAPI: rtm } = getConnection();
+const { socketModeClient } = getConnection();
 
 const TOPIC = 'messageAdded';
 
-function onMessageHandler(messageData) {
-  pubsub.publish(TOPIC, {
-    [TOPIC]: slackMessageMap(messageData)
-  });
+async function onMessageHandler(response) {
+  await response.ack();
+
+  const slackEvent = response.body.event;
+
+  if(slackEvent && slackEvent.type === 'message') {
+    if (slackEvent.subtype) {
+      return;
+    }
+
+    await pubsub.publish(TOPIC, {
+      [TOPIC]: slackMessageMap(response.event),
+      channelId: response.event.channel
+    });
+  }
 }
 
-rtm.on('message', onMessageHandler);
+socketModeClient.on('message', onMessageHandler);
 
 module.exports = {
   subscribe: () => pubsub.asyncIterator(TOPIC)

@@ -1,11 +1,6 @@
-const { DataSource } = require('apollo-datasource');
 const connection = require('../../../slack/connection');
 
-module.exports = class ConversationsAPI extends DataSource {
-  constructor() {
-    super();
-  }
-
+module.exports = class ConversationsAPI {
   /**
    * Get the complete list of conversations associated with your Slack web token
    */

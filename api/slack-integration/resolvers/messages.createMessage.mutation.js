@@ -8,7 +8,7 @@ module.exports = async function createMessage (parent, args, { dataSources }) {
     return dataSources.conversationsAPI.createConversation(channelName, [process.env.SLACK_ME_ID])
       .then(channel => dataSources.conversationsAPI.inviteUser({
         channelId: channel.id,
-        userIds: [process.env.SLACK_ME_ID, process.env.SLACK_APP_ID]
+        userIds: [process.env.SLACK_ME_ID]
       }));
   }
 

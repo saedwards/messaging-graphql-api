@@ -1,18 +1,11 @@
-const { RESTDataSource } = require('apollo-datasource-rest');
+const connection = require("../../../slack/connection");
 
-module.exports = class UsersAPI extends RESTDataSource {
-  constructor() {
-    super();
-    this.baseURL = 'https://slack.com/api/';
-  }
-
+module.exports = class UsersAPI {
   async getUsersInfo(id) {
-    const { user } = await this.get('users.info', {
-        ttl: 10000,
-        user: id,
-        token: process.env.SLACK_WEB_ACCESS_TOKEN
-      });
+    const { webAPI } = connection.getConnection();
 
-    return user;
+    return webAPI.users.info({
+      user: id
+    });
   }
 };
